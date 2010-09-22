@@ -4,6 +4,14 @@ Use the [RCQRS](https://github.com/slashdotdash/rcqrs) library in your Rails 3 w
 
 ## Usage
 
+Add the following dependencies to your Rails app's Gemfile and then `sudo bundle install`
+
+    gem "uuidtools"
+    gem "yajl-ruby", :require => 'yajl'
+    gem "eventful"
+    gem "rcqrs"
+    gem "rcqrs-rails"
+
 Add the following snippet inside `application_controller.rb` (ensuring it is `protected`) to allow each of your controllers to publish commands.
 
     def publish(command)
@@ -19,3 +27,5 @@ This plugin provides three generators to ease common tasks for generating comman
 * rcqrs:command
 * rcqrs:controller
 * rcqrs:event
+
+Usage is `rails generate rcqrs:command <command name>`
