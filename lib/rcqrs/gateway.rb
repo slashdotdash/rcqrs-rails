@@ -24,9 +24,9 @@ module Rcqrs
       wire_events
     end
 
-    # Dispatch raised domain events
+    # Publish raised domain events
     def wire_events
-      @repository.on(:domain_event) {|source, event| @event_bus.dispatch(event) }
+      @repository.on(:domain_event) {|source, event| @event_bus.publish(event) }
     end
     
     def create_repository
@@ -38,16 +38,24 @@ module Rcqrs
     end
 
     def create_event_bus
-      Bus::EventBus.new(Bus::EventRouter.new)
+      case config['event_bus']
+      when 'async'
+        Bus::AsyncEventBus.new(Bus::EventRouter.new)
+      else
+        Bus::EventBus.new(Bus::EventRouter.new)
+      end
     end
     
     def create_event_storage
       if Rails.env.test?
         EventStore::Adapters::InMemoryAdapter.new 
       else
-        config = YAML.load_file(File.join(Rails.root, 'config/event_storage.yml'))[Rails.env]
-        EventStore::Adapters::ActiveRecordAdapter.new(config)
+        EventStore::Adapters::ActiveRecordAdapter.new(config['event_storage'])
       end
+    end
+    
+    def config
+      @config ||= YAML.load_file(File.join(Rails.root, 'config/rcqrs.yml'))[Rails.env]
     end
   end
 end
